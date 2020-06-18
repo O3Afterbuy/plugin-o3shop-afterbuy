@@ -279,7 +279,7 @@ class fcafterbuyapi {
         $blValidType = $this->isValidProductRequestType($sType);
         if (!$blValidType) return 0;
 
-        $sXmlData = $this->getXmlHead('GetShopProducts', 30);
+        $sXmlData = $this->getXmlHead('GetShopProducts', 0);
         $sXmlData .= "<MaxShopItems>250</MaxShopItems>";
         $sXmlData .= $this->_fcGetSuppressBaseProductData($sType);
         $sXmlData .= "<PaginationEnabled>1</PaginationEnabled>";
