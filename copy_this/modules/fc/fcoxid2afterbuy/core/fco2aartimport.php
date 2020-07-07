@@ -34,7 +34,6 @@ class fco2aartimport extends fco2abase
 
         $this->_fcProcessCategoryTree();
         $this->_fcProcessProducts('variationsets');
-        $this->_fcProcessProducts('nonsets');
         $this->_fcProcessParentCategoryAssignment();
         $this->_fcUpdateCategoryIndex();
     }
@@ -159,7 +158,7 @@ class fco2aartimport extends fco2abase
             $oXmlResponse =
                 simplexml_load_string($sResponse, null, LIBXML_NOCDATA);
             $iPage =
-                $this->_fcParseApiProductResponse($oXmlResponse, $sType);
+                $this->_fcParseApiProductResponse($oXmlResponse);
         }
     }
 
@@ -167,10 +166,9 @@ class fco2aartimport extends fco2abase
      * Processing get shop products api response
      *
      * @param object $oXmlResponse
-     * @param string $sType
      * @return int
      */
-    protected function _fcParseApiProductResponse($oXmlResponse, $sType)
+    protected function _fcParseApiProductResponse($oXmlResponse)
     {
         $iPage = $this->_fcGetNextPage($oXmlResponse);
 
@@ -180,7 +178,7 @@ class fco2aartimport extends fco2abase
             if($this->_fcCheckIfArticleNumberIsValid($oXmlProduct) == false) {
                 continue;
             }
-            $this->_fcAddProductToOxid($oXmlProduct, $sType);
+            $this->_fcAddProductToOxid($oXmlProduct);
         }
 
         return $iPage;
@@ -190,9 +188,10 @@ class fco2aartimport extends fco2abase
      * Adds/Updates afterbuy product into oxid
      *
      * @param $oXmlProduct
+     * @param $sType
      * @return void
      */
-    protected function _fcAddProductToOxid($oXmlProduct, $sType)
+    protected function _fcAddProductToOxid($oXmlProduct)
     {
         $oArticle = oxNew('oxarticle');
         $oArticle->fcAddCustomFieldsToObject();
@@ -205,9 +204,9 @@ class fco2aartimport extends fco2abase
             "DEBUG: Trying to add/update XML Product: \n".
             print_r($oXmlProduct ,true), 4);
 
-        $this->_fcAddProductBasicData($oXmlProduct, $oArticle, $sType);
-        $this->_fcAddProductPictures($oXmlProduct, $oArticle, $sType);
-        $this->_fcAddProductAttributes($oXmlProduct, $oArticle, $sType);
+        $this->_fcAddProductBasicData($oXmlProduct, $oArticle);
+        $this->_fcAddProductPictures($oXmlProduct, $oArticle);
+        $this->_fcAddProductAttributes($oXmlProduct, $oArticle);
         $oArticle->save();
     }
 
@@ -216,19 +215,18 @@ class fco2aartimport extends fco2abase
      *
      * @param object $oXmlProduct
      * @param object $oArticle
-     * @param string $sType
      * @return void
      */
-    protected function _fcAddProductBasicData($oXmlProduct, &$oArticle, $sType)
+    protected function _fcAddProductBasicData($oXmlProduct, &$oArticle)
     {
         // identification
-        $this->_fcAddIdentificationData($oXmlProduct, $oArticle, $sType);
+        $this->_fcAddIdentificationData($oXmlProduct, $oArticle);
         // description
-        $this->_fcAddDescriptionData($oXmlProduct, $oArticle, $sType);
+        $this->_fcAddDescriptionData($oXmlProduct, $oArticle);
         // productdata
-        $this->_fcAddProductAmounts($oXmlProduct, $oArticle, $sType);
+        $this->_fcAddProductAmounts($oXmlProduct, $oArticle);
         // prices
-        $this->_fcAddProductPrices($oXmlProduct, $oArticle, $sType);
+        $this->_fcAddProductPrices($oXmlProduct, $oArticle);
     }
 
     /**
@@ -236,9 +234,8 @@ class fco2aartimport extends fco2abase
      *
      * @param object $oXmlProduct
      * @param object $oArticle
-     * @param string $sType
      */
-    protected function _fcAddProductPrices($oXmlProduct, &$oArticle, $sType)
+    protected function _fcAddProductPrices($oXmlProduct, &$oArticle)
     {
         $oArticle->oxarticles__oxprice =
             new oxField((double) $oXmlProduct->SellingPrice);
@@ -285,9 +282,8 @@ class fco2aartimport extends fco2abase
      *
      * @param object $oXmlProduct
      * @param object $oArticle
-     * @param string $sType
      */
-    protected function _fcAddProductAmounts($oXmlProduct, &$oArticle, $sType)
+    protected function _fcAddProductAmounts($oXmlProduct, &$oArticle)
     {
         $oArticle->oxarticles__oxstock =
             new oxField((int) $oXmlProduct->Quantity);
@@ -305,9 +301,8 @@ class fco2aartimport extends fco2abase
      *
      * @param object $oXmlProduct
      * @param object $oArticle
-     * @param string $sType
      */
-    protected function _fcAddIdentificationData($oXmlProduct, &$oArticle, $sType)
+    protected function _fcAddIdentificationData($oXmlProduct, &$oArticle)
     {
         $sProductId = (string) $oXmlProduct->ProductID;
         $oArticle->setId($sProductId);
@@ -315,9 +310,12 @@ class fco2aartimport extends fco2abase
         $sArtNum = $this->_fcGetArticleNumber($oXmlProduct);
         $oArticle->oxarticles__fcafterbuyid = new oxField($sProductId);
         $oArticle->oxarticles__oxartnum = new oxField($sArtNum);
-        if ($sType == 'variationsets') {
+
+        if ($this->_fcIsParent($oXmlProduct)) {
             $this->_fcSaveVariations($oXmlProduct);
-        } else {
+        }
+
+        if ($this->_fcIsChild($oXmlProduct)) {
             $sParentId = $this->_fcFetchParentId($sProductId);
             $oArticle->oxarticles__oxparentid = new oxField($sParentId);
         }
@@ -413,17 +411,50 @@ class fco2aartimport extends fco2abase
      *
      * @param object $oXmlProduct
      * @param object $oArticle
-     * @param string $sType
      */
-    protected function _fcAddDescriptionData($oXmlProduct, &$oArticle, $sType)
+    protected function _fcAddDescriptionData($oXmlProduct, &$oArticle)
     {
         $oArticle->oxarticles__oxtitle = new oxField((string)$oXmlProduct->Name);
         $oArticle->oxarticles__oxshortdesc = new oxField((string)$oXmlProduct->ShortDescription);
         $oArticle->setArticleLongDesc((string) $oXmlProduct->Description);
-        if ($sType=='nonsets') {
+
+        if ($this->_fcIsChildOrSingle($oXmlProduct)) {
             $sVarselect = $this->_fcFetchVarselect($oXmlProduct);
             $oArticle->oxarticles__oxvarselect = new oxField($sVarselect);
         }
+    }
+
+    protected function _fcIsParentOrChild($oXmlProduct) {
+        if (isset($oXmlProduct->BaseProductFlag)) {
+            return true;
+        }
+    }
+
+    protected function _fcIsParent($oXmlProduct) {
+        if (isset($oXmlProduct->BaseProductFlag)){
+            if ((int)$oXmlProduct->BaseProductFlag === 1){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    protected function _fcIsChild($oXmlProduct) {
+        if (isset($oXmlProduct->BaseProductFlag)){
+            if ((int)$oXmlProduct->BaseProductFlag === 3){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    protected function _fcIsChildOrSingle($oXmlProduct) {
+        if (isset($oXmlProduct->BaseProductFlag)){
+            if ((int)$oXmlProduct->BaseProductFlag === 1){
+                return false;
+            }
+        }
+        return true;
     }
 
     /**
@@ -462,9 +493,8 @@ class fco2aartimport extends fco2abase
      *
      * @param $oXmlProduct
      * @param $oArticle
-     * @param $sType
      */
-    protected function _fcAddProductAttributes($oXmlProduct, $oArticle, $sType)
+    protected function _fcAddProductAttributes($oXmlProduct, $oArticle)
     {
         $blValidNode = (
             is_array($oXmlProduct->Attributes) ||
@@ -702,9 +732,8 @@ class fco2aartimport extends fco2abase
      *
      * @param $oXmlProduct
      * @param $oArticle
-     * @param $sType
      */
-    protected function _fcAddProductPictures($oXmlProduct, &$oArticle, $sType)
+    protected function _fcAddProductPictures($oXmlProduct, &$oArticle)
     {
         $blValidNode = (
             is_array($oXmlProduct->ProductPictures) ||
