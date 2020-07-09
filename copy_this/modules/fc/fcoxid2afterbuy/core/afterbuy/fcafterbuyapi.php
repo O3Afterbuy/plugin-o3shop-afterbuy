@@ -362,23 +362,6 @@ class fcafterbuyapi {
         return $blValidType;
     }
 
-    /**
-     * Returns surpress base products value if call type is singles
-     *
-     * @param $sType
-     * @return string
-     */
-    protected function _fcGetSuppressBaseProductData($sType)
-    {
-        $iSuppress = (int) ($sType==='singles');
-        if (!$iSuppress) return '';
-
-        $sXmlData = "
-            <SuppressBaseProductRelatedData>".$iSuppress."</SuppressBaseProductRelatedData>
-        ";
-
-        return $sXmlData;
-    }
 
     /**
      * Requesting afterbuy api for sold products (orders)
@@ -400,30 +383,6 @@ class fcafterbuyapi {
         return $sOutput;
     }
 
-
-    /**
-     * Returns filter for requesting only new orders
-     *
-     * @param void
-     * @return string
-     */
-    protected function getShopProductsFilter($sType) {
-        $blNoFilter = ($sType==='singles');
-        if ($blNoFilter) return '';
-
-        $sFilterMode =
-            ($sType=='variationsets') ? 'VariationsSets' : 'not_VariationsSets';
-
-        $sXmlData = "";
-        $sXmlData .= "<DataFilter>";
-        $sXmlData .= "<Filter>";
-        $sXmlData .= "<FilterName>DefaultFilter</FilterName>";
-        $sXmlData .= "<FilterValue>".$sFilterMode."</FilterValue>";
-        $sXmlData .= "</Filter>";
-        $sXmlData .= "</DataFilter>";
-
-        return $sXmlData;
-    }
 
 
     /**
