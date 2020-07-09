@@ -272,12 +272,9 @@ class fcafterbuyapi {
      *
      *
      * @param int $iPage
-     * @param string $sType
      * @return int
      */
-    public function getShopProductsFromAfterbuy($iPage=1, $sType) {
-        $blValidType = $this->isValidProductRequestType($sType);
-        if (!$blValidType) return 0;
+    public function getShopProductsFromAfterbuy($iPage=1) {
 
         $sXmlData = $this->getXmlHead('GetShopProducts', 0);
         $sXmlData .= "<MaxShopItems>250</MaxShopItems>";
@@ -342,25 +339,6 @@ class fcafterbuyapi {
         return $sXmlData;
     }
 
-    /**
-     * Checks if product request type is valid
-     *
-     * @param string $sType
-     * @return bool
-     */
-    protected function isValidProductRequestType($sType)
-    {
-        $blValidType = in_array(
-            $sType,
-            array(
-                self::$ARTICLE_TYPE_SINGLES,
-                self::$ARTICLE_TYPE_VARIATIONSETS,
-                self::$ARTICLE_TYPE_NONSETS,
-            )
-        );
-
-        return $blValidType;
-    }
 
 
     /**

@@ -33,7 +33,7 @@ class fco2aartimport extends fco2abase
         }
 
         $this->_fcProcessCategoryTree();
-        $this->_fcProcessProducts('variationsets');
+        $this->_fcProcessProducts();
         $this->_fcProcessParentCategoryAssignment();
         $this->_fcUpdateCategoryIndex();
     }
@@ -148,13 +148,13 @@ class fco2aartimport extends fco2abase
      * @param void
      * @return void
      */
-    protected function _fcProcessProducts($sType)
+    protected function _fcProcessProducts()
     {
         $oAfterbuyApi = $this->_fcGetAfterbuyApi();
         $iPage = 1;
         while($iPage > 0 && $iPage <= $this->_iMaxPages) {
             $sResponse =
-                $oAfterbuyApi->getShopProductsFromAfterbuy($iPage, $sType);
+                $oAfterbuyApi->getShopProductsFromAfterbuy($iPage);
             $oXmlResponse =
                 simplexml_load_string($sResponse, null, LIBXML_NOCDATA);
             $iPage =
