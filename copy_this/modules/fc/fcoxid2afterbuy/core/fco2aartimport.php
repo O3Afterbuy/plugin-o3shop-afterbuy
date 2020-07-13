@@ -7,6 +7,9 @@
 
 class fco2aartimport extends fco2abase
 {
+    private const AFTERBUY_BASE_PRODUCT_FLAG_PARENT = 1;
+    private const AFTERBUY_BASE_PRODUCT_FLAG_CHILD = 3;
+
     /**
      * Number ox maximum pages that will be processed
      * @var int
@@ -379,7 +382,7 @@ class fco2aartimport extends fco2abase
         $BaseProducts = $oXmlProduct->BaseProducts;
 
         foreach ($BaseProducts as $xmlBaseProduct) {
-            if ((int)$xmlBaseProduct->BaseProduct->BaseProductType === 1) {
+            if ((int)$xmlBaseProduct->BaseProduct->BaseProductType === self::AFTERBUY_BASE_PRODUCT_FLAG_PARENT) {
                 $parentId = (string) $xmlBaseProduct->BaseProduct->BaseProductID;
             }
         }
@@ -413,7 +416,7 @@ class fco2aartimport extends fco2abase
 
     protected function _fcIsParent($oXmlProduct) {
         if (isset($oXmlProduct->BaseProductFlag)){
-            if ((int)$oXmlProduct->BaseProductFlag === 1){
+            if ((int)$oXmlProduct->BaseProductFlag === self::AFTERBUY_BASE_PRODUCT_FLAG_PARENT){
                 return true;
             }
         }
@@ -422,7 +425,7 @@ class fco2aartimport extends fco2abase
 
     protected function _fcIsChild($oXmlProduct) {
         if (isset($oXmlProduct->BaseProductFlag)){
-            if ((int)$oXmlProduct->BaseProductFlag === 3){
+            if ((int)$oXmlProduct->BaseProductFlag === self::AFTERBUY_BASE_PRODUCT_FLAG_CHILD){
                 return true;
             }
         }
@@ -431,7 +434,7 @@ class fco2aartimport extends fco2abase
 
     protected function _fcIsChildOrSingle($oXmlProduct) {
         if (isset($oXmlProduct->BaseProductFlag)){
-            if ((int)$oXmlProduct->BaseProductFlag === 1){
+            if ((int)$oXmlProduct->BaseProductFlag === self::AFTERBUY_BASE_PRODUCT_FLAG_PARENT){
                 return false;
             }
         }
