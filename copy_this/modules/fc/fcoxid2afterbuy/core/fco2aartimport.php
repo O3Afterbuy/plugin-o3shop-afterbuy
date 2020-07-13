@@ -311,12 +311,8 @@ class fco2aartimport extends fco2abase
         $oArticle->oxarticles__fcafterbuyid = new oxField($sProductId);
         $oArticle->oxarticles__oxartnum = new oxField($sArtNum);
 
-        if ($this->_fcIsParent($oXmlProduct)) {
-            $this->_fcSaveVariations($oXmlProduct);
-        }
-
         if ($this->_fcIsChild($oXmlProduct)) {
-            $sParentId = $this->_fcFetchParentId($sProductId);
+            $sParentId = $this->_fcFetchParentId($oXmlProduct);
             $oArticle->oxarticles__oxparentid = new oxField($sParentId);
         }
     }
@@ -373,38 +369,23 @@ class fco2aartimport extends fco2abase
     /**
      * Fetching parent id from
      *
-     * @param $sProductId
-     * @return string
-     */
-    protected function _fcFetchParentId($sProductId) {
-        $sParentId =
-            isset($this->_aVariations[$sProductId]) ?
-                $this->_aVariations[$sProductId] :
-                '';
-
-        return $sParentId;
-    }
-
-    /**
-     * Save related childproduct ids for later fetching parentids
-     *
      * @param $oXmlProduct
      * @return string
      */
-    protected function _fcSaveVariations($oXmlProduct)
-    {
+    protected function _fcFetchParentId($oXmlProduct) {
         if (!isset($oXmlProduct->BaseProducts)) return '';
-        $sProductId = (string) $oXmlProduct->ProductID;
 
-        foreach ($oXmlProduct->BaseProducts as $aBaseProducts) {
-            foreach ($aBaseProducts as $aBaseProduct) {
-                $aBaseProduct = (array) $aBaseProduct;
-                $sBaseProductId = (string) $aBaseProduct['BaseProductID'];
-                if (empty($sBaseProductId)) continue;
-                $this->_aVariations[$sBaseProductId] = $sProductId;
+        $parentId = '';
+        $BaseProducts = $oXmlProduct->BaseProducts;
+
+        foreach ($BaseProducts as $xmlBaseProduct) {
+            if ((int)$xmlBaseProduct->BaseProduct->BaseProductType === 1) {
+                $parentId = (string) $xmlBaseProduct->BaseProduct->BaseProductID;
             }
         }
+        return $parentId;
     }
+
 
     /**
      * Adds identification data to oxid product
@@ -466,7 +447,7 @@ class fco2aartimport extends fco2abase
      */
     protected function _fcFetchVarselect($oXmlProduct) {
         $sProductId = (string) $oXmlProduct->ProductID;
-        $sParentId = $this->_fcFetchParentId($sProductId);
+        $sParentId = $this->_fcFetchParentId($oXmlProduct);
         if (!$sParentId) return '';
 
         $oDb = oxDb::getDb(oxDb::FETCH_MODE_ASSOC);
