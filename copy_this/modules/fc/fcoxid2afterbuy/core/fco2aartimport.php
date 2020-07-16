@@ -126,14 +126,11 @@ class fco2aartimport extends fco2abaseimport
         // assigned products
         $sCatalogId = (string) $oCatalog->CatalogID;
 
-        $blHasAssignedProducts = (
-            isset($oCatalog->CatalogProducts) &&
-            $aCatalogProducts = (array) $oCatalog->CatalogProducts &&
-            isset($aCatalogProducts['ProductID'])
-        );
+        $blHasAssignedProducts = $this->_fcCategoryHasAssignedProducts($oCatalog);
 
-        if ($blHasAssignedProducts) {
-            foreach ($aCatalogProducts['ProductID'] as $sArticleId) {
+        if ($blHasAssignedProducts === true) {
+            $aCatalogProducts = (array)$oCatalog->CatalogProducts;
+            foreach ($aCatalogProducts as $sArticleId) {
                 $this->_fcAssignCategory($sCatalogId, $sArticleId);
             }
         }
@@ -143,6 +140,11 @@ class fco2aartimport extends fco2abaseimport
         foreach ($oCatalog->Catalog as $oSubCatalog) {
             $this->_fcCreateOxidCategory($oSubCatalog);
         }
+    }
+
+    private function _fcCategoryHasAssignedProducts($oCatalog)
+    {
+        return isset($oCatalog->CatalogProducts) && isset($oCatalog->CatalogProducts->ProductID);
     }
 
     /**
