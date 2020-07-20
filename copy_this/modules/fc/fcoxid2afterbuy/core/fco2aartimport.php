@@ -106,9 +106,18 @@ class fco2aartimport extends fco2abaseimport
         $oXmlResponse = simplexml_load_string($sResponse);
 
         $aCatalogs = (array) $oXmlResponse->Result->Catalogs;
+        $this->_fcClearCatalogProductsAssignments();
+
         foreach ($aCatalogs['Catalog'] as $oCatalog) {
             $this->_fcCreateOxidCategory($oCatalog);
         }
+    }
+
+    private function _fcClearCatalogProductsAssignments(){
+        $oDb = oxDb::getDb();
+        $truncateQuery = "TRUNCATE TABLE oxobject2category";
+
+        $oDb->execute($truncateQuery);
     }
 
     /**
@@ -130,8 +139,16 @@ class fco2aartimport extends fco2abaseimport
 
         if ($blHasAssignedProducts === true) {
             $aCatalogProducts = (array)$oCatalog->CatalogProducts;
-            foreach ($aCatalogProducts as $sArticleId) {
-                $this->_fcAssignCategory($sCatalogId, $sArticleId);
+
+            foreach ($aCatalogProducts as $aCatalogProductsIds) {
+                if (is_array($aCatalogProductsIds)) {
+                    foreach ($aCatalogProductsIds as $sArticleId) {
+                        $this->_fcAssignCategory($sCatalogId, $sArticleId);
+                    }
+                }
+                else{
+                    $this->_fcAssignCategory($sCatalogId, $aCatalogProductsIds);
+                }
             }
         }
 
@@ -555,11 +572,6 @@ class fco2aartimport extends fco2abaseimport
      */
     protected function _fcAssignCategory($sCategoryId, $sArticleId)
     {
-        $blExists =
-            $this->_fcCategoryAssignmentExists($sCategoryId, $sArticleId);
-
-        if ($blExists) return;
-
         $oUtilsObject = oxRegistry::get('oxUtilsObject');
         $oDb = oxDb::getDb();
         $sNewId = $oUtilsObject->generateUId();
@@ -582,31 +594,6 @@ class fco2aartimport extends fco2abaseimport
         $oDb->execute($sQuery);
     }
 
-    /**
-     * Checks for existing assignment
-     *
-     * @param $sCategoryId
-     * @param $sArticleId
-     * @return bool
-     */
-    protected function _fcCategoryAssignmentExists($sCategoryId, $sArticleId)
-    {
-        $oDb = oxDb::getDb();
-
-        $sQuery = "
-            SELECT 
-                OXID 
-            FROM 
-                oxobject2category
-            WHERE
-                OXOBJECTID=".$oDb->quote($sArticleId)." AND
-                OXCATNID=".$oDb->quote($sCategoryId)."
-        ";
-
-        $blExists = (bool) $oDb->getOne($sQuery);
-
-        return $blExists;
-    }
 
     /**
      * Create category entry
