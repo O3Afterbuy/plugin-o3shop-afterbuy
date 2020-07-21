@@ -7,8 +7,8 @@
 
 class fco2aartimport extends fco2abaseimport
 {
-    private const AFTERBUY_BASE_PRODUCT_FLAG_PARENT = 1;
-    private const AFTERBUY_BASE_PRODUCT_FLAG_CHILD = 3;
+    const AFTERBUY_BASE_PRODUCT_FLAG_PARENT = 1;
+    const AFTERBUY_BASE_PRODUCT_FLAG_CHILD = 3;
 
     /**
      * Number ox maximum pages that will be processed
@@ -589,6 +589,8 @@ class fco2aartimport extends fco2abaseimport
                 ".$oDb->quote($sArticleId).",
                 ".$oDb->quote($sCategoryId)."
             )
+            ON DUPLICATE KEY UPDATE
+                OXID = OXID
         ";
 
         $oDb->execute($sQuery);
