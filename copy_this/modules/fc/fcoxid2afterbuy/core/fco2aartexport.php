@@ -451,6 +451,11 @@ class fco2aartexport extends fco2abase {
             $oCategory = $oCategory->getParentCategory();
         }
 
+        if ($oCategory->oxcategories__oxparentid->value && $oCategory->oxcategories__oxparentid->value === 'oxrootid') {
+            // after the loop above, the category directly below root won't load. Adding it here.
+            $aTmpCategories[] = $oCategory;
+        }
+
         foreach ($aTmpCategories as $oCategory) {
 
             $aCategories[] = array(

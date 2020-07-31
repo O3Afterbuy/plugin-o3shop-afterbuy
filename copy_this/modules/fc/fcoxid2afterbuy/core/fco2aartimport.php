@@ -617,6 +617,7 @@ class fco2aartimport extends fco2abaseimport
                 OXID,
                 OXACTIVE,
                 OXTITLE,
+                OXSORT,
                 OXLONGDESC,
                 OXPARENTID
             )
@@ -625,6 +626,7 @@ class fco2aartimport extends fco2abaseimport
                 ".$oDb->quote($sCategoryId).",
                 ".$oDb->quote((int) $aCatalog['Show']).",
                 ".$oDb->quote((string) htmlspecialchars_decode($aCatalog['Name'])).",
+                ".$oDb->quote((string) $aCatalog['Position']).",
                 ".$oDb->quote((string) $aCatalog['Description']).",
                 ".$oDb->quote((string) $sParentId)."
             )
