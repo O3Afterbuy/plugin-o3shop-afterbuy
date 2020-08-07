@@ -1,5 +1,13 @@
 # Changelog - oxid 2 afterbuy plugin for OXID 5 and OXID6
 
+##1.6.2
+Released 2020-08-07
+* Fixed article import including categories connections
+* Fixed category order
+* Fixed price import AB --> OXID
+* Added stock update cron
+* Added tracking code transfer
+
 ## 1.6.1
 Released 2020-06-19
 * Fixed import of article description
