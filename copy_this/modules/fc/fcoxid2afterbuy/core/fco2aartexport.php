@@ -8,7 +8,7 @@ class fco2aartexport extends fco2abase {
     protected $_aAfterbuy2OxidDictionary = array(
         'UserProductID' => 'oxarticles__oxid',
         'Anr' => 'oxarticles__oxean',
-        'EAN' => 'oxarticles__oxartnum',
+        'EAN' => 'oxarticles__oxean',
         'ProductID' => 'oxarticles__fcafterbuyid',
         'ManufacturerPartNumber' => 'oxarticles__oxmpn',
         'Keywords' => 'oxarticles__oxkeywords',
