@@ -885,6 +885,7 @@ class fco2aartexport extends fco2abase {
         if ($sVarselect) {
             $sName = $sName." ".$sVarselect;
         }
+        $sName = htmlspecialchars_decode($sName, ENT_QUOTES);
 
         return $sName;
     }
