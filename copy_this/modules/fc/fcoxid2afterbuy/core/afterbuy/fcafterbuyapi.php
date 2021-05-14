@@ -166,9 +166,17 @@ class fcafterbuyapi {
         if (isset($oOrderState->AdditionalInfo)){
             $sXmlData .= "<AdditionalInfo>".$oOrderState->AdditionalInfo."</AdditionalInfo>";
         }
-        if (isset($oOrderState->PaymentInfo->PaymentDate)) {
-            $sXmlData .= "<PaymentInfo><PaymentDate>".$oOrderState->PaymentInfo->PaymentDate."</PaymentDate></PaymentInfo>";
+        if (isset($oOrderState->PaymentInfo->PaymentDate) || isset($oOrderState->PaymentInfo->AlreadyPaid)){
+            $sXmlData .= "<PaymentInfo>";
+            if (isset($oOrderState->PaymentInfo->PaymentDate)) {
+                $sXmlData .= "<PaymentDate>".$oOrderState->PaymentInfo->PaymentDate."</PaymentDate>";
+            }
+            if (isset($oOrderState->PaymentInfo->AlreadyPaid)) {
+                $sXmlData .= "<AlreadyPaid>".$oOrderState->PaymentInfo->AlreadyPaid."</AlreadyPaid>";
+            }
+            $sXmlData .= "</PaymentInfo>";
         }
+
         if (isset($oOrderState->ShippingInfo->DeliveryDate)) {
             $sXmlData .= "<ShippingInfo><DeliveryDate>".$oOrderState->ShippingInfo->DeliveryDate."</DeliveryDate></ShippingInfo>";
         }

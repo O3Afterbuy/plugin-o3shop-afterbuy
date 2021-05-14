@@ -58,6 +58,7 @@ class fco2astatusexport extends fco2abase {
         $oAfterbuyOrderStatus->OrderID = $this->_fcFetchAfterbuyOrderId($oOrder);
         $sOrderSendDate = $oOrder->oxorder__oxsenddate->value;
         $sPaidDate = $oOrder->oxorder__oxpaid->value;
+        $sPaidValue = $oOrder->oxorder__oxtotalordersum->value;
         $oAfterbuyOrderStatus->AdditionalInfo = $oOrder->oxorder__oxtrackcode->value;
 
         if ($sOrderSendDate != '0000-00-00 00:00:00') {
@@ -67,6 +68,7 @@ class fco2astatusexport extends fco2abase {
         }
         if ($sPaidDate != '0000-00-00 00:00:00') {
             $oPaymentInfo = new stdClass();
+            $oPaymentInfo->AlreadyPaid = $sPaidValue;
             $oPaymentInfo->PaymentDate = $this->_fcGetGermanDate($sPaidDate);
             $oAfterbuyOrderStatus->PaymentInfo = $oPaymentInfo;
         }
