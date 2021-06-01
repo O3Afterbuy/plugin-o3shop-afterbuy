@@ -1,4 +1,4 @@
-# Changelog - oxid 2 afterbuy plugin for OXID 5 and OXID6
+# Changelog - oxid 2 afterbuy plugin for OXID6
 
 ##1.6.3
 Released 2021-06-01
