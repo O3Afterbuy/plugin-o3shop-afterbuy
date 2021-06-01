@@ -1,5 +1,11 @@
 # Changelog - oxid 2 afterbuy plugin for OXID 5 and OXID6
 
+##1.6.3
+Released 2021-06-01
+* Changed the value exported as EAN, as it was using a wrong parameter
+* Fixed handling of quotes in article title
+* Added export of paid amount in order status export
+
 ##1.6.2
 Released 2020-08-07
 * Fixed article import including categories connections
