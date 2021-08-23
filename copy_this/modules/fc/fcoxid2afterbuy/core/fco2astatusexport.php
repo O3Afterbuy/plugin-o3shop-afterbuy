@@ -58,7 +58,8 @@ class fco2astatusexport extends fco2abase {
         $oAfterbuyOrderStatus->OrderID = $this->_fcFetchAfterbuyOrderId($oOrder);
         $sOrderSendDate = $oOrder->oxorder__oxsenddate->value;
         $sPaidDate = $oOrder->oxorder__oxpaid->value;
-        $sPaidValue = $oOrder->oxorder__oxtotalordersum->value;
+        $sPaidValue = $this->_fcConvertPrice($oOrder->oxorder__oxtotalordersum->value);
+        $sPaidValue = str_replace('.', ',', $sPaidValue);
         $oAfterbuyOrderStatus->AdditionalInfo = $oOrder->oxorder__oxtrackcode->value;
 
         if ($sOrderSendDate != '0000-00-00 00:00:00') {
@@ -74,6 +75,15 @@ class fco2astatusexport extends fco2abase {
         }
 
         return $oAfterbuyOrderStatus;
+    }
+
+    /**
+     * converts the price to comma for afterbuy
+     * @param $price
+     * @return array|string|string[]
+     */
+    protected function _fcConvertPrice($price) {
+        return str_replace('.',',',$price);
     }
 
     /**
