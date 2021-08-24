@@ -598,7 +598,7 @@ class fcafterbuyapi {
         $sXmlData .= '
             <UserProductID>' . $oArt->UserProductID . '</UserProductID>
             <Anr>' . $oArt->Anr . '</Anr>
-            <EAN>' . $oArt->EAN . '</EAN>
+            <EAN>' . $oArt->Anr . '</EAN>
             <Name><![CDATA[' . $oArt->Name . ']]></Name>
             <ShortDescription><![CDATA[' . $oArt->ShortDescription . ']]></ShortDescription>
             <Description><![CDATA[' . $oArt->Description . ']]></Description>
@@ -637,7 +637,7 @@ class fcafterbuyapi {
                                 <BaseProductType>' . $oArt->BaseProductType . '</BaseProductType>
                                 <UserProductID><![CDATA[' . $oArt->UserProductID . ']]></UserProductID>
                                 <Anr>' . $oArt->Anr . '</Anr>
-                                <EAN>' . $oArt->EAN . '</EAN>';
+                                <EAN>' . $oArt->Anr . '</EAN>';
         } else {
             $sXmlData .= '<ProductID>' . $oArt->ProductID . '</ProductID>';
         }
