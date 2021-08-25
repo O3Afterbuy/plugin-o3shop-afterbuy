@@ -1,5 +1,10 @@
 # Changelog - oxid 2 afterbuy plugin for OXID6
 
+##1.6.4
+Released 2021-08-25
+* Fixed value for external article number
+* Fixed export of paid amount
+
 ##1.6.3
 Released 2021-06-01
 * Changed the value exported as EAN, as it was using a wrong parameter
