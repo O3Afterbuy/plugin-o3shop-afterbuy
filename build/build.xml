@@ -51,12 +51,21 @@
             <include name="README.md"/>
         </replace>
 
+        <!-- apply all changes that have been made to the source code for the release -->
+        <copy todir="${src}" overwrite="true">
+            <fileset dir="${build}"/>
+        </copy>
+
+        <!-- make a temporary branch out of the applied changes so that they can be included into the release -->
+        <exec executable="bash">
+            <arg value="./build/autobranch.sh" />
+            <arg value="v${version}" />
+        </exec>
+
         <!-- pack source code zip file -->
         <zip destfile="${dist}/${pluginname}_v${version}_oxid_source.zip" basedir="${build}"	/>
 
-
         <!-- Upload to github as release Version -->
-
         <exec executable="bash">
             <arg value="${basedir}/../bin/github-release.sh" />
             <arg value="${repository}" />
