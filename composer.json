@@ -1,0 +1,13 @@
+{
+  "name": "fatchip-gmbh/plugin-oxid-oxid2afterbuy",
+  "description": "FATCHIP Module OXID Redirect",
+  "type": "oxideshop-module",
+  "keywords": ["oxid", "modules", "eShop", "fatchip"],
+  "homepage": "https://www.fatchip.de/",
+  "extra": {
+    "oxideshop": {
+      "target-directory": "fc/fcoxid2afterbuy",
+      "source-directory": "copy_this/modules/fc/fcoxid2afterbuy"
+    }
+  }
+}
