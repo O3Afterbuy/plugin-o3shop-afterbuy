@@ -1,6 +1,6 @@
 {
   "name": "fatchip-gmbh/plugin-oxid-oxid2afterbuy",
-  "description": "FATCHIP Module OXID Redirect",
+  "description": "FATCHIP Module OXID oxid2afterbuy",
   "type": "oxideshop-module",
   "keywords": ["oxid", "modules", "eShop", "fatchip"],
   "homepage": "https://www.fatchip.de/",
