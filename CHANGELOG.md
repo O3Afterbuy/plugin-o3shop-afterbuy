@@ -1,5 +1,9 @@
 # Changelog - oxid 2 afterbuy plugin for OXID6
 
+##1.7.0
+Released 2021-10-11
+* Made the module installable with Composer
+
 ##1.6.4
 Released 2021-08-25
 * Fixed value for external article number
