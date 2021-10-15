@@ -701,25 +701,20 @@ class fco2aorderimport extends fco2abase {
     }
 
     /**
-     * Method splits street and streetnr from string
+     * Method splits street as everything from the first occurence of a digit and streetnr as the rest
+     * This works with patterns like:
+     * - Beispielstraße 22B
+     * - Straße des Beispiels 55A
+     * NOTE: Some major exceptions like "Straße des 17. Juni 25A" will not be covered.
      *
      * @param string $sStreetAndStreetNr
      * @return array
      */
     protected function _fcpoSplitStreetAndStreetNr($sStreetAndStreetNr) {
-        /**
-         * @todo currently very basic by simply splitting ot space
-         */
         $aReturn = array();
-        $aParts = explode(' ', $sStreetAndStreetNr);
-        foreach ($aParts as $iIndex=>$sPart) {
-            if ($iIndex==(count($aParts)-1)) {
-                $aReturn['streetnr'] = $sPart;
-            } else {
-                $aStreetNames[] = $sPart;
-            }
-        }
-        $aReturn['street'] = implode(' ', $aStreetNames);
+        preg_match('/^([^\d]*[^\d\s]) *(\d.*)$/', $sStreetAndStreetNr, $matches);
+        $aReturn['street'] = $matches[1];
+        $aReturn['streetnr'] = $matches[2];
 
         return $aReturn;
     }
