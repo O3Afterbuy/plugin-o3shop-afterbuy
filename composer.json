@@ -4,6 +4,9 @@
   "type": "oxideshop-module",
   "keywords": ["oxid", "modules", "eShop", "fatchip"],
   "homepage": "https://www.fatchip.de/",
+  "license":     [
+    "GPL-3.0"
+  ],
   "extra": {
     "oxideshop": {
       "target-directory": "fc/fcoxid2afterbuy",
