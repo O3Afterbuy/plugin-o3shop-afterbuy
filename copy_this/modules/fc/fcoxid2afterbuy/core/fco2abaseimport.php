@@ -115,11 +115,17 @@ class fco2abaseimport extends fco2abase
         $oArticle->oxarticles__oxunitquantity =
             new oxField((int) $oXmlProduct->BasepriceFactor);
         $oArticle->oxarticles__oxweight =
-            new oxField((int) $oXmlProduct->Weight);
+            new oxField($this->_fcConvertWeight((int) $oXmlProduct->Weight));
 
     }
 
-    protected function _fcGetFloatValue($oXmlField){
+    protected function _fcConvertWeight($weight)
+    {
+        return str_replace('.',',',$weight);
+    }
+
+    protected function _fcGetFloatValue($oXmlField)
+    {
         $strValue = (string)$oXmlField;
 
         $oUtils = oxRegistry::get("oxUtils");
