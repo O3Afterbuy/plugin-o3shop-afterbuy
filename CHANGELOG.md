@@ -1,5 +1,10 @@
 # Changelog - oxid 2 afterbuy plugin for OXID6
 
+##1.7.1
+Released 2021-10-18
+* Refactored address splitting
+* changed the decimal separator of the XML weight attribute
+
 ##1.7.0
 Released 2021-10-11
 * Made the module installable with Composer
