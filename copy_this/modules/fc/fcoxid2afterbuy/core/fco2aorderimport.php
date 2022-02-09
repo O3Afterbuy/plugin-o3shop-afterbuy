@@ -291,6 +291,8 @@ class fco2aorderimport extends fco2abase {
             $oProductDetails = $oSoldItem->ShopProductDetails;
             $sArtNum = $oProductDetails->EAN;
             $sProductId = $this->_fcGetProductIdByArtNum($sArtNum);
+            $sVariant = $this->_fcGetVariationByArtNum($sArtNum);
+            $sShortDesc = $this->_fcGetShortDescByArtNum($sArtNum);
 
             $iAmount = $oSoldItem->ItemQuantity;
             $dSinglePrice = $this->_fcFetchAmount($oSoldItem->ItemPrice);
@@ -311,6 +313,8 @@ class fco2aorderimport extends fco2abase {
             $oOrderArticle->oxorderarticles__oxbrutprice = new oxField($oOrderArticlePrice->getBruttoPrice());
             $oOrderArticle->oxorderarticles__oxnetprice = new oxField($oOrderArticlePrice->getNettoPrice());
             $oOrderArticle->oxorderarticles__oxvat = new oxField($oOrderArticlePrice->getVat());
+            $oOrderArticle->oxorderarticles__oxselvariant = new oxField($sVariant);
+            $oOrderArticle->oxorderarticles__oxshortdesc = new oxField($sShortDesc);
             $oOrderArticle->save();
         }
 
@@ -329,6 +333,34 @@ class fco2aorderimport extends fco2abase {
         $sOxid = $oDb->getOne($sQuery);
 
         return (string) $sOxid;
+    }
+
+    /**
+     * Returns variant if of an article number
+     *
+     * @param $sArtNum
+     * @return string
+     */
+    protected function _fcGetVariationByArtNum($sArtNum) {
+        $oDb = oxDb::getDb();
+        $sQuery = "SELECT OXVARSELECT FROM oxarticles WHERE OXARTNUM=".$oDb->quote($sArtNum)." LIMIT 1";
+        $sVariant = $oDb->getOne($sQuery);
+
+        return (string) $sVariant;
+    }
+
+    /**
+     * Returns variant if of an article number
+     *
+     * @param $sArtNum
+     * @return string
+     */
+    protected function _fcGetShortDescByArtNum($sArtNum) {
+        $oDb = oxDb::getDb();
+        $sQuery = "SELECT OXSHORTDESC FROM oxarticles WHERE OXARTNUM=".$oDb->quote($sArtNum)." LIMIT 1";
+        $sShortdesc = $oDb->getOne($sQuery);
+
+        return (string) $sShortdesc;
     }
 
     /**
