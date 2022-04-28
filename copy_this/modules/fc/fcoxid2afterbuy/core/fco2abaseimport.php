@@ -82,8 +82,19 @@ class fco2abaseimport extends fco2abase
      */
     protected function _fcProductExists($oXmlProduct)
     {
-        $sProductId = (int) $oXmlProduct->ProductID;
+        $sProductId = (string)$oXmlProduct->ProductID;
 
+        return $this->getProductIdByAfterbuyId($sProductId);
+    }
+
+    /**
+     * Returns oxid product id for given afterbuy id
+     *
+     * @param string $sAfterbuyId
+     * @return mixed
+     */
+    public function getProductIdByAfterbuyId($sAfterbuyId)
+    {
         $oDb = oxDb::getDb();
 
         $sQuery = "
@@ -92,11 +103,9 @@ class fco2abaseimport extends fco2abase
             FROM 
                 oxarticles_afterbuy
             WHERE 
-                fcafterbuyid = ".$oDb->quote($sProductId);
+                fcafterbuyid = ".$oDb->quote($sAfterbuyId);
 
-        $mOxid = $oDb->getOne($sQuery);
-
-        return $mOxid;
+        return $oDb->getOne($sQuery);
     }
 
 

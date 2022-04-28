@@ -171,6 +171,12 @@ class fco2aorderimport extends fco2abase {
 
         // shipping costs
         $oShippingPrice = oxNew('oxPrice');
+        if ($this->getConfig()->getConfigParam('blDeliveryVatOnTop')) {
+            $oShippingPrice->setNettoPriceMode();
+        } else {
+            $oShippingPrice->setBruttoPriceMode();
+        }
+
         $dShippingCostsTotal = $this->_fcFetchAmount($oAfterbuyOrder->ShippingInfo->ShippingTotalCost);
         $dShippingVat = $this->_fcFetchAmount($oAfterbuyOrder->ShippingInfo->ShippingTaxRate);
         $oShippingPrice->setPrice($dShippingCostsTotal, $dShippingVat);
@@ -266,6 +272,18 @@ class fco2aorderimport extends fco2abase {
     }
 
     /**
+     * Loads afterbuy id from oxarticles_afterbuy table
+     *
+     * @param string $sAfterbuyId
+     * @return mixed
+     */
+    protected function _fcGetProductIdByAfterbuyId($sAfterbuyId)
+    {
+        $oBaseImport = oxNew("fco2abaseimport");
+        return $oBaseImport->getProductIdByAfterbuyId($sAfterbuyId);
+    }
+
+    /**
      * Assign solditems values to orderarticles
      *
      * @todo implementing sets feature (ChildProduct)
@@ -290,9 +308,12 @@ class fco2aorderimport extends fco2abase {
             $oOrderArticle = clone $oOrderArticleTemplate;
             $oProductDetails = $oSoldItem->ShopProductDetails;
             $sArtNum = $oProductDetails->EAN;
-            $sProductId = $this->_fcGetProductIdByArtNum($sArtNum);
-            $sVariant = $this->_fcGetVariationByArtNum($sArtNum);
-            $sShortDesc = $this->_fcGetShortDescByArtNum($sArtNum);
+            $sProductId = $this->_fcGetProductIdByAfterbuyId($oProductDetails->ProductID);
+            if (!$sProductId) {
+                $sProductId = $this->_fcGetProductIdByArtNum($sArtNum);
+            }
+            $sVariant = $this->_fcGetVariationByOxid($sProductId);
+            $sShortDesc = $this->_fcGetShortDescByOxid($sProductId);
 
             $iAmount = $oSoldItem->ItemQuantity;
             $dSinglePrice = $this->_fcFetchAmount($oSoldItem->ItemPrice);
@@ -301,6 +322,9 @@ class fco2aorderimport extends fco2abase {
             $oOrderArticlePrice = oxNew('oxPrice');
             $oOrderArticlePrice->setBruttoPriceMode();
             $oOrderArticlePrice->setPrice($dCompletePrice, $dVat);
+            if (!$oSumPrice->getVat()) {
+                $oSumPrice->setVat($dVat);
+            }
             $oSumPrice->addPrice($oOrderArticlePrice);
 
             $oOrderArticle->oxorderarticles__oxorderid = new oxField($sOrderId);
@@ -315,6 +339,7 @@ class fco2aorderimport extends fco2abase {
             $oOrderArticle->oxorderarticles__oxvat = new oxField($oOrderArticlePrice->getVat());
             $oOrderArticle->oxorderarticles__oxselvariant = new oxField($sVariant);
             $oOrderArticle->oxorderarticles__oxshortdesc = new oxField($sShortDesc);
+            $oOrderArticle->setIsNewOrderItem(true); // enables stock management
             $oOrderArticle->save();
         }
 
@@ -336,31 +361,31 @@ class fco2aorderimport extends fco2abase {
     }
 
     /**
-     * Returns variant if of an article number
+     * Returns varselect of product by oxid
      *
-     * @param $sArtNum
+     * @param $sOxid
      * @return string
      */
-    protected function _fcGetVariationByArtNum($sArtNum) {
+    protected function _fcGetVariationByOxid($sOxid) {
         $oDb = oxDb::getDb();
-        $sQuery = "SELECT OXVARSELECT FROM oxarticles WHERE OXARTNUM=".$oDb->quote($sArtNum)." LIMIT 1";
+        $sQuery = "SELECT OXVARSELECT FROM oxarticles WHERE OXID = ".$oDb->quote($sOxid)." LIMIT 1";
         $sVariant = $oDb->getOne($sQuery);
 
-        return (string) $sVariant;
+        return (string)$sVariant;
     }
 
     /**
-     * Returns variant if of an article number
+     * Returns shortdesc of product by oxid
      *
-     * @param $sArtNum
+     * @param  string $sOxid
      * @return string
      */
-    protected function _fcGetShortDescByArtNum($sArtNum) {
+    protected function _fcGetShortDescByOxid($sOxid) {
         $oDb = oxDb::getDb();
-        $sQuery = "SELECT OXSHORTDESC FROM oxarticles WHERE OXARTNUM=".$oDb->quote($sArtNum)." LIMIT 1";
+        $sQuery = "SELECT OXSHORTDESC FROM oxarticles WHERE OXID = ".$oDb->quote($sOxid)." LIMIT 1";
         $sShortdesc = $oDb->getOne($sQuery);
 
-        return (string) $sShortdesc;
+        return (string)$sShortdesc;
     }
 
     /**
@@ -490,10 +515,10 @@ class fco2aorderimport extends fco2abase {
      * @return bool
      */
     protected function _fcPaymentTypeExists($sPaymentId) {
-       $oPayment = oxNew('oxpayment');
-       $blPaymentExists = (bool) $oPayment->load($sPaymentId);
+        $oPayment = oxNew('oxpayment');
+        $blPaymentExists = (bool) $oPayment->load($sPaymentId);
 
-       return $blPaymentExists;
+        return $blPaymentExists;
     }
 
     /**
