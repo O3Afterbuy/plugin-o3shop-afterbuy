@@ -1,5 +1,11 @@
 # Changelog - oxid 2 afterbuy plugin for OXID6
 
+##1.7.2
+Release 2022-05-02
+* Fixed stock management on order import
+* Fixed fross and net prices when OXID is run in net mode
+* Changed product id determination from artnum to Afterbuy id mapping
+
 ##1.7.1
 Released 2021-10-18
 * Refactored address splitting
