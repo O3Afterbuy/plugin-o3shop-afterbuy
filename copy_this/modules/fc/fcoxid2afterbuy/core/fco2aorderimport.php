@@ -158,30 +158,28 @@ class fco2aorderimport extends fco2abase {
         $sFolder = $this->_fcGetAppropriateFolder($oAfterbuyOrder);
         $oOrder->oxorder__oxfolder = new oxField($sFolder, oxField::T_RAW);
 
+        $oOrder->oxorder__oxtransstatus = new oxField("OK", oxField::T_RAW);
+
         // set orderarticles
         $oSumPrice = $this->_fcSetOxidOrderarticlesByAfterbuyOrder($oAfterbuyOrder, $oOrder);
 
         // cumulate sums
         $oOrder->oxorder__oxtotalbrutsum = new oxField($oSumPrice->getBruttoPrice(), oxField::T_RAW);
         $oOrder->oxorder__oxtotalnetsum = new oxField($oSumPrice->getNettoPrice(), oxField::T_RAW);
+        $oOrder->oxorder__oxartvat1 = new oxField($oSumPrice->getVat(), oxField::T_RAW);
+        $oOrder->oxorder__oxartvatprice1 = new oxField($oSumPrice->getVatValue(), oxField::T_RAW);
 
         // delivery date
         $sDeliveryDate = $this->_fcGetOxidDeliveryDate($oAfterbuyOrder);
         $oOrder->oxorder__oxsenddate = new oxField($sDeliveryDate, oxField::T_RAW);
 
-        // shipping costs
-        $oShippingPrice = oxNew('oxPrice');
-        if ($this->getConfig()->getConfigParam('blDeliveryVatOnTop')) {
-            $oShippingPrice->setNettoPriceMode();
-        } else {
-            $oShippingPrice->setBruttoPriceMode();
-        }
-
+        // shipping costs - always delivered as brut price from Afterbuy, ignore vat settings in oxid
         $dShippingCostsTotal = $this->_fcFetchAmount($oAfterbuyOrder->ShippingInfo->ShippingTotalCost);
         $dShippingVat = $this->_fcFetchAmount($oAfterbuyOrder->ShippingInfo->ShippingTaxRate);
-        $oShippingPrice->setPrice($dShippingCostsTotal, $dShippingVat);
-        $oOrder->oxorder__oxdelcost = new oxField($oShippingPrice->getBruttoPrice(), oxField::T_RAW);
-        $oOrder->oxorder__oxdelvat = new oxField($oShippingPrice->getVat(), oxField::T_RAW);
+        $oOrder->oxorder__oxdelcost = new oxField($dShippingCostsTotal, oxField::T_RAW);
+        $oOrder->oxorder__oxdelvat = new oxField($dShippingVat, oxField::T_RAW);
+
+        $oOrder->oxorder__oxisnettomode = new oxField((int)$this->_isPriceViewModeNetto(), oxField::T_RAW);
 
         $oOrder->save();
     }
@@ -196,6 +194,9 @@ class fco2aorderimport extends fco2abase {
     {
         $oShippingInfo = $oAfterbuyOrder->ShippingInfo;
         $sRawDeliveryDate = (string) $oShippingInfo->DeliveryDate;
+        if (empty($sRawDeliveryDate)) {
+            return '0000-00-00 00:00:00';
+        }
 
         $iOrderTime = strtotime($sRawDeliveryDate);
         $sOxidSendDate = date('Y-m-d H:i:s', $iOrderTime);
@@ -284,6 +285,16 @@ class fco2aorderimport extends fco2abase {
     }
 
     /**
+     * Returns true if view mode is netto
+     *
+     * @return bool
+     */
+    protected function _isPriceViewModeNetto()
+    {
+        return (bool) $this->getConfig()->getConfigParam('blShowNetPrice');
+    }
+
+    /**
      * Assign solditems values to orderarticles
      *
      * @todo implementing sets feature (ChildProduct)
@@ -322,6 +333,9 @@ class fco2aorderimport extends fco2abase {
             $oOrderArticlePrice = oxNew('oxPrice');
             $oOrderArticlePrice->setBruttoPriceMode();
             $oOrderArticlePrice->setPrice($dCompletePrice, $dVat);
+            $oUnitPrice = oxNew('oxPrice');
+            $oUnitPrice->setBruttoPriceMode();
+            $oUnitPrice->setPrice($dSinglePrice, $dVat);
             if (!$oSumPrice->getVat()) {
                 $oSumPrice->setVat($dVat);
             }
@@ -333,12 +347,15 @@ class fco2aorderimport extends fco2abase {
             $oOrderArticle->oxorderarticles__oxartnum = new oxField($sArtNum);
             $oOrderArticle->oxorderarticles__oxtitle = new oxField($oSoldItem->ItemTitle);
             $oOrderArticle->oxorderarticles__oxprice = new oxField($dCompletePrice);
-            $oOrderArticle->oxorderarticles__oxbprice = new oxField($dSinglePrice);
+            $oOrderArticle->oxorderarticles__oxbprice = new oxField($oUnitPrice->getBruttoPrice());
+            $oOrderArticle->oxorderarticles__oxnprice = new oxField($oUnitPrice->getNettoPrice());
             $oOrderArticle->oxorderarticles__oxbrutprice = new oxField($oOrderArticlePrice->getBruttoPrice());
             $oOrderArticle->oxorderarticles__oxnetprice = new oxField($oOrderArticlePrice->getNettoPrice());
             $oOrderArticle->oxorderarticles__oxvat = new oxField($oOrderArticlePrice->getVat());
+            $oOrderArticle->oxorderarticles__oxvatprice = new oxField($oOrderArticlePrice->getVatValue());
             $oOrderArticle->oxorderarticles__oxselvariant = new oxField($sVariant);
             $oOrderArticle->oxorderarticles__oxshortdesc = new oxField($sShortDesc);
+            $oOrderArticle->oxorderarticles__oxsubclass = new oxField("oxarticle");
             $oOrderArticle->setIsNewOrderItem(true); // enables stock management
             $oOrderArticle->save();
         }
