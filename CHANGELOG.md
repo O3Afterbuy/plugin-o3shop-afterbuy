@@ -1,5 +1,12 @@
 # Changelog - oxid 2 afterbuy plugin for OXID6
 
+##1.7.3
+Release 2022-07-18
+* Fixed filling of oxorder__oxisnettomode
+* Added oxorderarticles__oxnprice to filled fields 
+* Added several other fields to fields 
+* Afterbuy shipping costs are now always interpreted as a brut price ignoring oxid config
+
 ##1.7.2
 Release 2022-05-02
 * Fixed stock management on order import
