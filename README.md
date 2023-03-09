@@ -1,24 +1,7 @@
-# OXID eShop to Afterbuy for OXID
-With this plugin you can Export Articles from your OXID eShop to Afterbuy.  
-More on: https://www.fatchip.de/Plugins/OXID-eShop/OXID-2-Afterbuy.html
+# Afterbuy Plugin for O3-Shop
+With this plugin you can use Afterbuy as ERP for your O3-Shop.  
 
-## Installation and documentation
-
-Visit our Wiki pages to read the plugin documentation.    
-https://wiki.fatchip.de/public/faqoxid2afterbuy
-
-## Author
-FATCHIP GmbH | https://www.fatchip.de | support@fatchip.de
-
-## License
-see LICENSE file
-
-## Extend
-oxarticle
-oxcategory
-oxcounter
-oxorder
-oxuser
-
-## How to contribute
-If you want to contribute to this plugin ask FATCHIP GmbH for access to the private repository, fork it and make a pull request with your changes.
+## Installation
+Download newest release from this repository.
+Copy contents to your modules directory.
+execute `vendor/bin/oe-console oe:module:install-configuration source/modules/via/o3shop/`
